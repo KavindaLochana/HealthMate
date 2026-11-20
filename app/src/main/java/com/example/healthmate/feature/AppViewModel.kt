@@ -10,10 +10,10 @@ sealed interface AppState {
 }
 
 class AppViewModel (
-    private val authRepository: AuthRepository,
-    private val settingsRepository: SettingsRepository,
-    private val appLockState: AppLockState,
-    seedSampleData: SeedSampleDataUseCase
+//    private val authRepository: AuthRepository,
+//    private val settingsRepository: SettingsRepository,
+//    private val appLockState: AppLockState,
+//    seedSampleData: SeedSampleDataUseCase
 ) : ViewModel() {
 
 
