@@ -21,12 +21,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             HealthMateTheme {
                 HealthMateApp()
-//                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-//                    Greeting(
-//                        name = "Android",
-//                        modifier = Modifier.padding(innerPadding)
-//                    )
-//                }
             }
         }
     }
