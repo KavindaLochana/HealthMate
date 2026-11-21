@@ -23,14 +23,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-/** One ring: [fraction] in `0f..1f` drawn in [color]. */
 data class RingSpec(val fraction: Float, val color: Color)
 
-/**
- * Concentric activity rings. The first entry of [rings] is the outermost ring.
- * Rings animate from empty to their value the first time they are composed and whenever the
- * value changes.
- */
+// ring animation
 @Composable
 fun ActivityRings(
     rings: List<RingSpec>,

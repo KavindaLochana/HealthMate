@@ -1,11 +1,67 @@
 <resources>
     <string name="app_name">HealthMate</string>
-    <string name="auth_hide_password">Hide password</string>
-    <string name="auth_show_password">Show password</string>
+    <!-- Common actions -->
+    <string name="action_back">Back</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_confirm">Confirm</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_ok">OK</string>
+    <string name="action_reset">Reset</string>
+    <string name="action_save">Save</string>
     <string name="editor_title_new">New record</string>
 
     <!-- Lock -->
     <string name="lock_title">Enter passcode</string>
     <string name="lock_wrong">Incorrect passcode, try again</string>
     <string name="lock_delete">Delete digit</string>
+
+    <!-- Validation -->
+    <string name="error_required">This field is required</string>
+    <string name="error_not_number">Enter a whole number</string>
+    <string name="error_future_date">Date cannot be in the future</string>
+    <string name="error_out_of_range">Enter %1$s from %2$s to %3$s %4$s</string>
+    <string name="error_out_of_range_generic">Enter a value from %1$s to %2$s</string>
+
+    <!-- Auth -->
+    <string name="auth_sign_in_title">Sign in to your account</string>
+    <string name="auth_email">Email</string>
+    <string name="auth_password">Password</string>
+    <string name="auth_name">Name</string>
+    <string name="auth_confirm_password">Confirm password</string>
+    <string name="auth_sign_in">Sign in</string>
+    <string name="auth_create_account">Create account</string>
+    <string name="auth_back_to_sign_in">Back to sign in</string>
+    <string name="auth_sign_in_footer">Your account and health records are stored only on this device.</string>
+    <string name="auth_register_footer">Stored securely on this device. No internet connection needed.</string>
+    <string name="auth_show_password">Show password</string>
+    <string name="auth_hide_password">Hide password</string>
+    <string name="auth_error_name_short">Enter at least 2 characters</string>
+    <string name="auth_error_invalid_email">Enter a valid email address</string>
+    <string name="auth_error_password_short">Use at least 8 characters</string>
+    <string name="auth_error_passwords_mismatch">Passwords do not match</string>
+    <string name="auth_error_invalid_credentials">Incorrect email or password</string>
+    <string name="auth_error_email_taken">An account with this email already exists</string>
+
+    <!-- Metrics -->
+    <string name="metric_steps">Steps</string>
+    <string name="metric_calories">Calories burned</string>
+    <string name="metric_water">Water intake</string>
+    <string name="metric_steps_value">%1$s steps</string>
+    <string name="metric_calories_value">%1$s kcal</string>
+    <string name="metric_water_value">%1$s ml</string>
+    <string name="unit_steps">steps</string>
+    <string name="unit_calories">kcal</string>
+    <string name="unit_water">ml</string>
+    <string name="field_steps">steps</string>
+    <string name="field_calories">calories burned</string>
+    <string name="field_water">water intake</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_percent_of_target">%1$d%% of %2$s</string>
+    <string name="dashboard_rings_description">Activity rings: steps %1$d%%, calories %2$d%%, water %3$d%%</string>
+
+
+
+
 </resources>
