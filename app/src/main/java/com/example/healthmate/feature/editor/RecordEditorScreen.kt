@@ -80,135 +80,48 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import com.example.healthmate.R
+import com.example.healthmate.core.ui.components.HealthMateDatePickerDialog
+import com.example.healthmate.domain.model.MetricType
+import com.example.healthmate.domain.validation.RecordField
+
 
 @Composable
 fun RecordEditorScreen(
-    modifier: Modifier = Modifier,
-    onClose: () -> Unit = {}
+    viewModel: RecordEditorViewModel,
+    onClose: () -> Unit,
 ) {
-    var date by rememberSaveable {
-        mutableStateOf(LocalDate.now().toString())
-    }
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    var steps by rememberSaveable {
-        mutableStateOf("8000")
-    }
-
-    var calories by rememberSaveable {
-        mutableStateOf("2000")
-    }
-
-    var water by rememberSaveable {
-        mutableStateOf("2.5")
-    }
-
-    var showDatePicker by remember {
-        mutableStateOf(false)
-    }
-
-    var showSaveMessage by remember {
-        mutableStateOf(false)
+    // The ViewModel reports "finished" once the record is saved; navigate back exactly once.
+    LaunchedEffect(state.isFinished) {
+        if (state.isFinished) onClose()
     }
 
     RecordEditorContent(
-        date = date,
-        steps = steps,
-        calories = calories,
-        water = water,
-        onDateClick = {
-            showDatePicker = true
-        },
-        onStepsChange = {
-            steps = it
-        },
-        onCaloriesChange = {
-            calories = it
-        },
-        onWaterChange = {
-            water = it
-        },
-        onSaveClick = {
-            showSaveMessage = true
-        },
+        state = state,
+        onDateChange = viewModel::onDateChange,
+        onStepsChange = viewModel::onStepsChange,
+        onCaloriesChange = viewModel::onCaloriesChange,
+        onWaterChange = viewModel::onWaterChange,
+        onSaveClick = viewModel::onSaveClick,
         onBackClick = onClose,
-        modifier = modifier
     )
-
-    if (showDatePicker) {
-        val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = date.toDateMillis()
-        )
-
-        DatePickerDialog(
-            onDismissRequest = {
-                showDatePicker = false
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        datePickerState.selectedDateMillis?.let {
-                            date = it.toLocalDate().toString()
-                        }
-                        showDatePicker = false
-                    }
-                ) {
-                    Text("OK")
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        showDatePicker = false
-                    }
-                ) {
-                    Text("Cancel")
-                }
-            }
-        ) {
-            DatePicker(
-                state = datePickerState
-            )
-        }
-    }
-
-    if (showSaveMessage) {
-        AlertDialog(
-            onDismissRequest = {
-                showSaveMessage = false
-            },
-            title = {
-                Text("Record saved")
-            },
-            text = {
-                Text("This is a UI preview. No record was actually saved.")
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showSaveMessage = false
-                    }
-                ) {
-                    Text("OK")
-                }
-            }
-        )
-    }
 }
 
+// new record / edit screen
 @Composable
-private fun RecordEditorContent(
-    date: String,
-    steps: String,
-    calories: String,
-    water: String,
-    onDateClick: () -> Unit,
+fun RecordEditorContent(
+    state: RecordEditorUiState,
+    onDateChange: (java.time.LocalDate) -> Unit,
     onStepsChange: (String) -> Unit,
     onCaloriesChange: (String) -> Unit,
     onWaterChange: (String) -> Unit,
     onSaveClick: () -> Unit,
     onBackClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
+    var showDatePicker by rememberSaveable { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
 
     Scaffold(
@@ -216,19 +129,26 @@ private fun RecordEditorContent(
         topBar = {
             TopAppBar(
                 title = {
-                    Text("New Record")
+                    Text(
+                        stringResource(
+                            if (state.isEditing) R.string.editor_title_edit else R.string.editor_title_new,
+                        ),
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
-                        )
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
-                }
+                },
             )
-        }
+        },
     ) { innerPadding ->
+        if (state.isLoading) {
+            Box(Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+            return@Scaffold
+        }
 
         Column(
             modifier = Modifier
@@ -237,163 +157,123 @@ private fun RecordEditorContent(
                 .imePadding()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             DateField(
-                date = date,
-                onClick = onDateClick
+                dateText = state.date.toFullDateString(),
+                errorText = state.errors[RecordField.DATE]?.message(null),
+                onClick = { showDatePicker = true },
             )
-
             MetricField(
-                value = steps,
+                metric = MetricType.STEPS,
+                value = state.steps,
                 onValueChange = onStepsChange,
-                label = "Steps",
-                unit = "steps",
-                icon = {
-                    Icon(
-                        Icons.Default.DirectionsWalk,
-                        contentDescription = null
-                    )
-                },
+                errorText = state.errors[RecordField.STEPS]?.message(MetricType.STEPS),
                 imeAction = ImeAction.Next,
-                onImeAction = {
-                    focusManager.moveFocus(FocusDirection.Down)
-                }
+                onImeAction = { focusManager.moveFocus(FocusDirection.Down) },
             )
-
             MetricField(
-                value = calories,
+                metric = MetricType.CALORIES,
+                value = state.calories,
                 onValueChange = onCaloriesChange,
-                label = "Calories",
-                unit = "kcal",
-                icon = {
-                    Icon(
-                        Icons.Default.LocalFireDepartment,
-                        contentDescription = null
-                    )
-                },
+                errorText = state.errors[RecordField.CALORIES]?.message(MetricType.CALORIES),
                 imeAction = ImeAction.Next,
-                onImeAction = {
-                    focusManager.moveFocus(FocusDirection.Down)
-                }
+                onImeAction = { focusManager.moveFocus(FocusDirection.Down) },
             )
-
             MetricField(
-                value = water,
+                metric = MetricType.WATER,
+                value = state.water,
                 onValueChange = onWaterChange,
-                label = "Water",
-                unit = "L",
-                icon = {
-                    Icon(
-                        Icons.Default.WaterDrop,
-                        contentDescription = null
-                    )
-                },
+                errorText = state.errors[RecordField.WATER]?.message(MetricType.WATER),
                 imeAction = ImeAction.Done,
                 onImeAction = {
                     focusManager.clearFocus()
                     onSaveClick()
-                }
+                },
             )
 
             Button(
                 onClick = onSaveClick,
+                enabled = !state.isSaving,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp)
-                    .padding(top = 8.dp)
+                    .padding(top = 8.dp),
             ) {
-                Text("Save Record")
+                if (state.isSaving) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                    )
+                } else {
+                    Text(stringResource(R.string.editor_save))
+                }
             }
         }
     }
+
+    if (showDatePicker) {
+        HealthMateDatePickerDialog(
+            initialDate = state.date,
+            maxDate = state.today,
+            onDateSelected = onDateChange,
+            onDismiss = { showDatePicker = false },
+        )
+    }
 }
 
+// date picker read only
 @Composable
 private fun DateField(
-    date: String,
-    onClick: () -> Unit
+    dateText: String,
+    errorText: String?,
+    onClick: () -> Unit,
 ) {
-    val interactionSource = remember {
-        MutableInteractionSource()
-    }
-
+    // A read-only OutlinedTextField swallows clicks, so a pressed-state interaction source
+    // is used to detect the tap and open the picker.
+    val interactionSource = remember { MutableInteractionSource() }
     val pressed by interactionSource.collectIsPressedAsState()
-
     LaunchedEffect(pressed) {
         if (pressed) onClick()
     }
 
-    val formattedDate = remember(date) {
-        LocalDate.parse(date).format(
-            DateTimeFormatter.ofPattern("dd MMMM yyyy")
-        )
-    }
-
     OutlinedTextField(
-        value = formattedDate,
+        value = dateText,
         onValueChange = {},
         readOnly = true,
         modifier = Modifier.fillMaxWidth(),
-        label = {
-            Text("Date")
-        },
-        leadingIcon = {
-            Icon(
-                Icons.Default.CalendarMonth,
-                contentDescription = "Select date"
-            )
-        },
+        label = { Text(stringResource(R.string.editor_date)) },
+        leadingIcon = { Icon(Icons.Filled.CalendarMonth, contentDescription = stringResource(R.string.editor_pick_date)) },
+        isError = errorText != null,
+        supportingText = errorText?.let { { Text(it) } },
         singleLine = true,
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     )
 }
 
 @Composable
 private fun MetricField(
+    metric: MetricType,
     value: String,
     onValueChange: (String) -> Unit,
-    label: String,
-    unit: String,
-    icon: @Composable () -> Unit,
+    errorText: String?,
     imeAction: ImeAction,
-    onImeAction: () -> Unit
+    onImeAction: () -> Unit,
 ) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         modifier = Modifier.fillMaxWidth(),
-        label = {
-            Text(label)
-        },
-        leadingIcon = icon,
-        suffix = {
-            Text(unit)
-        },
+        label = { Text(stringResource(metric.labelRes)) },
+        leadingIcon = { Icon(metric.icon, contentDescription = null, tint = metric.accentColor) },
+        suffix = { Text(stringResource(metric.unitRes)) },
+        isError = errorText != null,
+        supportingText = errorText?.let { { Text(it) } },
         singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Number,
-            imeAction = imeAction
-        ),
-        keyboardActions = KeyboardActions(
-            onAny = {
-                onImeAction()
-            }
-        )
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = imeAction),
+        keyboardActions = KeyboardActions(onAny = { onImeAction() }),
     )
-}
-
-private fun String.toDateMillis(): Long {
-    return LocalDate.parse(this)
-        .atStartOfDay(java.time.ZoneOffset.UTC)
-        .toInstant()
-        .toEpochMilli()
-}
-
-private fun Long.toLocalDate(): LocalDate {
-    return java.time.Instant.ofEpochMilli(this)
-        .atZone(java.time.ZoneOffset.UTC)
-        .toLocalDate()
 }
 
 @Preview(showBackground = true, showSystemUi = true)

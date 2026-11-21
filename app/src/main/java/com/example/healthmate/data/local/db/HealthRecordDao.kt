@@ -1,11 +1,13 @@
 package com.example.healthmate.data.local.db
 
+import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
+@Dao
 abstract class HealthRecordDao {
 
     @Query("SELECT * FROM health_records ORDER BY date DESC, id DESC")

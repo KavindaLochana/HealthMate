@@ -22,6 +22,7 @@ import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,57 +36,27 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.healthmate.R
-
-private const val PASSCODE_LENGTH = 4
-private val KEY_SIZE = 72.dp
-
-// -----------------------------------------------------------------------------
-// Lock screen
-// -----------------------------------------------------------------------------
+import com.example.healthmate.domain.validation.PasscodeRules
 
 @Composable
-fun LockScreen(
-    modifier: Modifier = Modifier
-) {
-    var enteredDigits by rememberSaveable {
-        mutableStateOf("")
-    }
-
-    var hasError by rememberSaveable {
-        mutableStateOf(false)
-    }
-
+fun LockScreen(viewModel: LockViewModel) {
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     LockContent(
-        enteredDigits = enteredDigits,
-        hasError = hasError,
-        onDigit = { digit ->
-            if (enteredDigits.length < PASSCODE_LENGTH) {
-                enteredDigits += digit
-                hasError = false
-            }
-        },
-        onBackspace = {
-            if (enteredDigits.isNotEmpty()) {
-                enteredDigits = enteredDigits.dropLast(1)
-                hasError = false
-            }
-        },
-        modifier = modifier
+        state = state,
+        onDigit = viewModel::onDigit,
+        onBackspace = viewModel::onBackspace,
     )
 }
 
-// -----------------------------------------------------------------------------
-// Lock content
-// -----------------------------------------------------------------------------
-
+/** Stateless passcode keypad. */
 @Composable
-private fun LockContent(
-    enteredDigits: String,
-    hasError: Boolean,
+fun LockContent(
+    state: LockUiState,
     onDigit: (Char) -> Unit,
     onBackspace: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
@@ -93,175 +64,102 @@ private fun LockContent(
             .windowInsetsPadding(WindowInsets.safeDrawing)
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
-
-        // Lock icon
         Icon(
-            imageVector = Icons.Default.Lock,
+            imageVector = Icons.Filled.Lock,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(40.dp)
+            modifier = Modifier.size(40.dp),
         )
-
-        // Title
         Text(
             text = stringResource(R.string.lock_title),
             style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(top = 16.dp)
+            modifier = Modifier.padding(top = 16.dp),
         )
 
-        // Passcode indicators
         Row(
             modifier = Modifier.padding(vertical = 24.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            repeat(PASSCODE_LENGTH) { index ->
-                val filled = index < enteredDigits.length
-
-                val color = if (hasError) {
-                    MaterialTheme.colorScheme.error
-                } else {
-                    MaterialTheme.colorScheme.primary
-                }
-
+            repeat(PasscodeRules.LENGTH) { index ->
+                val filled = index < state.enteredDigits
+                val color =
+                    if (state.hasError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
                 Box(
                     modifier = Modifier
                         .size(16.dp)
                         .clip(CircleShape)
                         .then(
-                            if (filled) {
-                                Modifier.background(color)
-                            } else {
-                                Modifier.border(
-                                    width = 2.dp,
-                                    color = color,
-                                    shape = CircleShape
-                                )
-                            }
-                        )
+                            if (filled) Modifier.background(color) else Modifier.border(
+                                2.dp,
+                                color,
+                                CircleShape
+                            ),
+                        ),
                 )
             }
         }
 
-        // Error message
         Text(
-            text = if (hasError) {
-                stringResource(R.string.lock_wrong)
-            } else {
-                ""
-            },
+            text = if (state.hasError) stringResource(R.string.lock_wrong) else "",
             color = MaterialTheme.colorScheme.error,
             style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.height(24.dp)
+            modifier = Modifier.height(24.dp),
         )
+        Spacer(Modifier.height(16.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Numeric keypad
-        Keypad(
-            onDigit = onDigit,
-            onBackspace = onBackspace
-        )
+        Keypad(onDigit = onDigit, onBackspace = onBackspace)
     }
 }
 
-// -----------------------------------------------------------------------------
-// Numeric keypad
-// -----------------------------------------------------------------------------
-
 @Composable
-private fun Keypad(
-    onDigit: (Char) -> Unit,
-    onBackspace: () -> Unit
-) {
-    val rows = listOf(
-        "123",
-        "456",
-        "789"
-    )
-
+private fun Keypad(onDigit: (Char) -> Unit, onBackspace: () -> Unit) {
+    val rows = listOf("123", "456", "789")
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         rows.forEach { row ->
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                row.forEach { digit ->
-                    DigitKey(
-                        digit = digit,
-                        onDigit = onDigit
-                    )
-                }
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                row.forEach { digit -> DigitKey(digit, onDigit) }
             }
         }
-
-        // Bottom row
         Row(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Spacer(modifier = Modifier.size(KEY_SIZE))
-
-            DigitKey(
-                digit = '0',
-                onDigit = onDigit
-            )
-
-            Box(
-                modifier = Modifier
-                    .size(KEY_SIZE),
-                contentAlignment = Alignment.Center
-            ) {
+            Spacer(Modifier.size(KEY_SIZE))
+            DigitKey('0', onDigit)
+            IconButton(onClick = onBackspace, modifier = Modifier.size(KEY_SIZE)) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Backspace,
                     contentDescription = stringResource(R.string.lock_delete),
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape)
-                        .clickable(onClick = onBackspace)
-                        .padding(12.dp),
-                    tint = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
     }
 }
 
-// -----------------------------------------------------------------------------
-// Individual digit key
-// -----------------------------------------------------------------------------
-
 @Composable
-private fun DigitKey(
-    digit: Char,
-    onDigit: (Char) -> Unit
-) {
+private fun DigitKey(digit: Char, onDigit: (Char) -> Unit) {
     FilledTonalButton(
-        onClick = {
-            onDigit(digit)
-        },
+        onClick = { onDigit(digit) },
         modifier = Modifier.size(KEY_SIZE),
         shape = CircleShape,
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp),
     ) {
-        Text(
-            text = digit.toString(),
-            style = MaterialTheme.typography.headlineSmall
-        )
+        Text(text = digit.toString(), style = MaterialTheme.typography.headlineSmall)
     }
 }
 
-// -----------------------------------------------------------------------------
-// Preview
-// -----------------------------------------------------------------------------
+private val KEY_SIZE = 72.dp
 
-@Preview(showBackground = true)
-@Composable
-private fun LockScreenPreview() {
-    MaterialTheme {
-        LockScreen()
-    }
-}
+
+//@Preview(showBackground = true)
+//@Composable
+//private fun LockScreenPreview() {
+//    MaterialTheme {
+//        LockScreen()
+//    }
+//}

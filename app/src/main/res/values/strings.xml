@@ -61,7 +61,38 @@
     <string name="dashboard_percent_of_target">%1$d%% of %2$s</string>
     <string name="dashboard_rings_description">Activity rings: steps %1$d%%, calories %2$d%%, water %3$d%%</string>
 
-
+    <!-- Profile -->
+    <string name="profile_title">Profile</string>
+    <string name="profile_targets">Daily targets</string>
+    <string name="profile_targets_caption">Targets set the progress of your Dashboard rings</string>
+    <string name="profile_edit_target_title">Daily target: %1$s</string>
+    <string name="profile_security">Security and privacy</string>
+    <string name="profile_app_lock">App lock</string>
+    <string name="profile_app_lock_summary">Ask for a passcode when opening the app</string>
+    <string name="profile_change_passcode">Change passcode</string>
+    <string name="profile_database">Database tools</string>
+    <string name="profile_reset_sample">Reset sample data</string>
+    <string name="profile_reset_sample_summary">Replace all records with the sample records</string>
+    <string name="profile_logout">Log out</string>
+    <string name="reset_title">Reset sample data?</string>
+    <string name="reset_message">All existing health records will be replaced by the sample records.</string>
+    <string name="logout_title">Log out?</string>
+    <string name="logout_message">Your records stay on this device.</string>
+    <string name="passcode_enable_title">Set passcode</string>
+    <string name="passcode_change_title">Change passcode</string>
+    <string name="passcode_disable_title">Turn off app lock</string>
+    <string name="passcode_current">Current passcode</string>
+    <string name="passcode_new">New passcode</string>
+    <string name="passcode_confirm">Confirm passcode</string>
+    <string name="passcode_hint">Use exactly 4 digits</string>
+    <string name="passcode_error_format">Passcode must be 4 digits</string>
+    <string name="passcode_error_mismatch">Passcodes do not match</string>
+    <string name="passcode_error_wrong">Incorrect passcode</string>
+    <string name="message_targets_saved">Targets updated</string>
+    <string name="message_sample_reset">Sample data restored</string>
+    <string name="message_lock_enabled">App lock turned on</string>
+    <string name="message_lock_disabled">App lock turned off</string>
+    <string name="message_passcode_changed">Passcode changed</string>
 
 
 </resources>
