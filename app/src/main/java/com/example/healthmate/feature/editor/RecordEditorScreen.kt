@@ -2,7 +2,6 @@
 package com.example.healthmate.feature.editor
 
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -82,11 +81,10 @@ import androidx.compose.ui.unit.dp
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RecordEditorScreen(
-    onClose: () -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClose: () -> Unit = {}
 ) {
     var date by rememberSaveable {
         mutableStateOf(LocalDate.now().toString())
@@ -197,7 +195,6 @@ fun RecordEditorScreen(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun RecordEditorContent(
     date: String,
@@ -312,7 +309,6 @@ private fun RecordEditorContent(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun DateField(
     date: String,
@@ -387,7 +383,6 @@ private fun MetricField(
     )
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 private fun String.toDateMillis(): Long {
     return LocalDate.parse(this)
         .atStartOfDay(java.time.ZoneOffset.UTC)
@@ -395,14 +390,12 @@ private fun String.toDateMillis(): Long {
         .toEpochMilli()
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 private fun Long.toLocalDate(): LocalDate {
     return java.time.Instant.ofEpochMilli(this)
         .atZone(java.time.ZoneOffset.UTC)
         .toLocalDate()
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 private fun RecordEditorScreenPreview() {

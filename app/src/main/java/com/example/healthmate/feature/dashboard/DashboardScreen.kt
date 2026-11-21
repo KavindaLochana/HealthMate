@@ -1,7 +1,6 @@
 package com.example.healthmate.feature.dashboard
 
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -76,11 +75,10 @@ private data class DashboardMetric(
 // Dashboard screen
 // -----------------------------------------------------------------------------
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DashboardScreen(
-    onAddRecordClick: () -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onAddRecordClick: () -> Unit = {}
 ) {
     val metrics = remember {
         listOf(
@@ -122,7 +120,6 @@ fun DashboardScreen(
 // Dashboard content
 // -----------------------------------------------------------------------------
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun DashboardContent(
     metrics: List<DashboardMetric>,
@@ -339,7 +336,6 @@ private fun MetricProgressCard(
 // Preview
 // -----------------------------------------------------------------------------
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
 @Composable
 private fun DashboardScreenPreview() {

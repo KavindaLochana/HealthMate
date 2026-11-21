@@ -3,7 +3,6 @@ package com.example.healthmate.feature.HistoryScreen
 
 
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -66,7 +65,6 @@ private data class CalendarDay(
 // Main screen
 // -----------------------------------------------------------------------------
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HistoryScreen(
     modifier: Modifier = Modifier
@@ -372,7 +370,6 @@ fun HistoryScreen(
 // Calendar
 // -----------------------------------------------------------------------------
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun CalendarCard(
     visibleMonth: YearMonth,
@@ -455,7 +452,6 @@ private fun CalendarCard(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun WeekdayHeader() {
     Row(
@@ -478,7 +474,6 @@ private fun WeekdayHeader() {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun DayCell(
     day: CalendarDay,
@@ -556,7 +551,6 @@ private fun DayCell(
 // Filter and empty state
 // -----------------------------------------------------------------------------
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun FilterRow(
     selectedDate: LocalDate?,
@@ -620,7 +614,6 @@ private fun EmptyRecords(
 // Record card
 // -----------------------------------------------------------------------------
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun RecordCard(
     record: HistoryRecord,
@@ -733,7 +726,6 @@ private fun RecordLine(
 // Calendar generation
 // -----------------------------------------------------------------------------
 
-@RequiresApi(Build.VERSION_CODES.O)
 private fun generateCalendarWeeks(
     month: YearMonth,
     selectedDate: LocalDate?,
@@ -775,14 +767,12 @@ private fun generateCalendarWeeks(
 // Date conversion helpers
 // -----------------------------------------------------------------------------
 
-@RequiresApi(Build.VERSION_CODES.O)
 private fun LocalDate.toEpochMillis(): Long {
     return atStartOfDay(ZoneOffset.UTC)
         .toInstant()
         .toEpochMilli()
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 private fun Long.toLocalDate(): LocalDate {
     return java.time.Instant
         .ofEpochMilli(this)
@@ -794,7 +784,6 @@ private fun Long.toLocalDate(): LocalDate {
 // Preview
 // -----------------------------------------------------------------------------
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
 @Composable
 private fun HistoryScreenPreview() {
