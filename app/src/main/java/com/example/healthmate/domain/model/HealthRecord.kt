@@ -3,7 +3,7 @@ package com.example.healthmate.domain.model
 import java.time.LocalDate
 
 // A single health entry
-class HealthRecord (
+data class HealthRecord (
     val id: Long = NEW_ID,
     val date: LocalDate,
     val steps: Int,
