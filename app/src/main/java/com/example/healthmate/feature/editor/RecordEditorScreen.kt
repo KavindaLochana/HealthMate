@@ -81,7 +81,13 @@ import androidx.compose.ui.unit.dp
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import com.example.healthmate.R
+import com.example.healthmate.core.ui.accentColor
 import com.example.healthmate.core.ui.components.HealthMateDatePickerDialog
+import com.example.healthmate.core.ui.icon
+import com.example.healthmate.core.ui.labelRes
+import com.example.healthmate.core.ui.message
+import com.example.healthmate.core.ui.unitRes
+import com.example.healthmate.core.util.toFullDateString
 import com.example.healthmate.domain.model.MetricType
 import com.example.healthmate.domain.validation.RecordField
 
@@ -276,10 +282,10 @@ private fun MetricField(
     )
 }
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-private fun RecordEditorScreenPreview() {
-    MaterialTheme {
-        RecordEditorScreen()
-    }
-}
+//@Preview(showBackground = true, showSystemUi = true)
+//@Composable
+//private fun RecordEditorScreenPreview() {
+//    MaterialTheme {
+//        RecordEditorScreen()
+//    }
+//}

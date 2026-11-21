@@ -139,10 +139,10 @@ private fun DashboardBody(summary: DashboardSummary) {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-private fun DashboardScreenPreview() {
-    MaterialTheme {
-        DashboardScreen()
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//private fun DashboardScreenPreview() {
+//    MaterialTheme {
+//        DashboardScreen()
+//    }
+//}

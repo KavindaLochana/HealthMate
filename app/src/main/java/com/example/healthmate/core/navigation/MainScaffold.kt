@@ -19,16 +19,24 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.healthmate.R
 import com.example.healthmate.feature.dashboard.DashboardScreen
-import com.example.healthmate.feature.HistoryScreen.HistoryScreen
+import com.example.healthmate.feature.dashboard.DashboardViewModel
+import com.example.healthmate.feature.editor.EditorArgs
 import com.example.healthmate.feature.editor.RecordEditorScreen
+import com.example.healthmate.feature.editor.RecordEditorViewModel
+import com.example.healthmate.feature.history.HistoryScreen
+import com.example.healthmate.feature.history.HistoryViewModel
 import com.example.healthmate.feature.profile.ProfileScreen
+import com.example.healthmate.feature.profile.ProfileViewModel
 
 private enum class TopLevelDestination(
     val route: String,
@@ -111,5 +119,13 @@ fun MainScaffold(viewModelFactory: ViewModelProvider.Factory) {
                 )
             }
         }
+    }
+}
+
+private fun NavHostController.navigateTopLevel(route: String) {
+    navigate(route) {
+        popUpTo(graph.findStartDestination().id) { saveState = true }
+        launchSingleTop = true
+        restoreState = true
     }
 }

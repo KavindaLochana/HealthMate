@@ -2,6 +2,7 @@ package com.example.healthmate.domain.usecase
 
 import com.example.healthmate.domain.repository.HealthRecordRepository
 import com.example.healthmate.domain.repository.SettingsRepository
+import com.example.healthmate.domain.sample.SampleRecords
 import java.time.Clock
 import java.time.LocalDate
 

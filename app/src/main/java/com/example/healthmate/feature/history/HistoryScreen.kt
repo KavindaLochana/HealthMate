@@ -63,6 +63,8 @@ import com.example.healthmate.core.ui.labelRes
 import com.example.healthmate.core.ui.valueFormatRes
 import com.example.healthmate.core.util.formatNumber
 import com.example.healthmate.core.util.toFullDateString
+import com.example.healthmate.core.util.toShortDateString
+import com.example.healthmate.core.util.toTitleString
 import com.example.healthmate.domain.calendar.CalendarGenerator
 import com.example.healthmate.domain.model.MetricType
 
@@ -105,7 +107,6 @@ fun HistoryScreen(
     )
 }
 
-/** Stateless history screen: month calendar, date filter and the matching records. */
 @Composable
 fun HistoryContent(
     state: HistoryUiState,
@@ -114,7 +115,9 @@ fun HistoryContent(
 ) {
     var showDatePicker by rememberSaveable { mutableStateOf(false) }
 
-    Box(modifier = modifier.fillMaxSize().statusBarsPadding()) {
+    Box(modifier = modifier
+        .fillMaxSize()
+        .statusBarsPadding()) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp),
@@ -184,11 +187,19 @@ fun HistoryContent(
             onDismissRequest = actions.onDeleteDismissed,
             title = { Text(stringResource(R.string.history_delete_title)) },
             text = {
-                Text(stringResource(R.string.history_delete_message, record.date.toShortDateString()))
+                Text(
+                    stringResource(
+                        R.string.history_delete_message,
+                        record.date.toShortDateString()
+                    )
+                )
             },
             confirmButton = {
                 TextButton(onClick = actions.onDeleteConfirmed) {
-                    Text(stringResource(R.string.action_delete), color = MaterialTheme.colorScheme.error)
+                    Text(
+                        stringResource(R.string.action_delete),
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
             },
             dismissButton = {
@@ -200,9 +211,6 @@ fun HistoryContent(
     }
 }
 
-// ---------------------------------------------------------------------------------------------
-// Calendar
-// ---------------------------------------------------------------------------------------------
 
 @Composable
 private fun CalendarCard(
@@ -252,7 +260,9 @@ private fun CalendarCard(
                 Row(modifier = Modifier.fillMaxWidth()) {
                     week.forEach { day ->
                         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                            if (day != null) DayCell(day = day, onClick = { onDateSelected(day.date) })
+                            if (day != null) DayCell(
+                                day = day,
+                                onClick = { onDateSelected(day.date) })
                         }
                     }
                 }
@@ -270,7 +280,9 @@ private fun WeekdayHeader() {
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.weight(1f).padding(vertical = 4.dp),
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(vertical = 4.dp),
             )
         }
     }
@@ -323,10 +335,6 @@ private fun DayCell(day: CalendarDay, onClick: () -> Unit) {
         )
     }
 }
-
-// ---------------------------------------------------------------------------------------------
-// Filter + list
-// ---------------------------------------------------------------------------------------------
 
 @Composable
 private fun FilterRow(selectedDate: LocalDate?, onShowAll: () -> Unit) {
@@ -382,7 +390,10 @@ fun RecordCard(
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
     ) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             if (showDate) {
                 Text(
                     text = record.date.toFullDateString(),
@@ -395,13 +406,18 @@ fun RecordCard(
             RecordLine(MetricType.WATER, record.water)
 
             Row(
-                modifier = Modifier.fillMaxWidth().height(40.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp),
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 TextButton(onClick = onEdit) { Text(stringResource(R.string.action_edit)) }
                 TextButton(onClick = onDelete) {
-                    Text(stringResource(R.string.action_delete), color = MaterialTheme.colorScheme.error)
+                    Text(
+                        stringResource(R.string.action_delete),
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
             }
         }
@@ -410,7 +426,10 @@ fun RecordCard(
 
 @Composable
 private fun RecordLine(metric: MetricType, value: Int) {
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
         Icon(
             imageVector = metric.icon,
             contentDescription = null,

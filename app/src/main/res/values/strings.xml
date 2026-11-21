@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">HealthMate</string>
+
     <!-- Common actions -->
     <string name="action_back">Back</string>
     <string name="action_cancel">Cancel</string>
@@ -9,7 +10,6 @@
     <string name="action_ok">OK</string>
     <string name="action_reset">Reset</string>
     <string name="action_save">Save</string>
-    <string name="editor_title_new">New record</string>
 
     <!-- Lock -->
     <string name="lock_title">Enter passcode</string>
@@ -93,6 +93,32 @@
     <string name="message_lock_enabled">App lock turned on</string>
     <string name="message_lock_disabled">App lock turned off</string>
     <string name="message_passcode_changed">Passcode changed</string>
+
+    <!-- Editor -->
+    <string name="editor_title_new">New record</string>
+    <string name="editor_title_edit">Edit record</string>
+    <string name="editor_date">Date</string>
+    <string name="editor_pick_date">Choose date</string>
+    <string name="editor_save">Save record</string>
+
+    <!-- Navigation -->
+    <string name="nav_today">Today</string>
+    <string name="nav_history">History</string>
+    <string name="nav_profile">Profile</string>
+
+    <!-- History -->
+    <string name="history_title">History</string>
+    <string name="history_previous_month">Previous month</string>
+    <string name="history_next_month">Next month</string>
+    <string name="history_search_date">Search by date</string>
+    <string name="history_show_all">All records</string>
+    <string name="history_showing_all">Showing all records</string>
+    <string name="history_empty_day">No records for this day</string>
+    <string name="history_empty_all">No records yet</string>
+    <string name="history_day_has_records">%1$s, has records</string>
+    <string name="history_delete_title">Delete record?</string>
+    <string name="history_delete_message">This will permanently remove the record for %1$s.</string>
+
 
 
 </resources>

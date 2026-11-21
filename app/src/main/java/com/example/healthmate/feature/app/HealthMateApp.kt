@@ -12,7 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.healthmate.core.navigation.MainScaffold
 import com.example.healthmate.core.ui.theme.HealthMateTheme
+import com.example.healthmate.feature.auth.AuthHost
 import com.example.healthmate.feature.lock.LockScreen
 
 // root composable
