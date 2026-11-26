@@ -48,470 +48,441 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.*
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.healthmate.domain.model.MetricType
+import com.example.healthmate.R
+import com.example.healthmate.core.ui.accentColor
+import com.example.healthmate.core.ui.icon
+import com.example.healthmate.core.ui.labelRes
+import com.example.healthmate.core.ui.message
+import com.example.healthmate.core.ui.valueFormatRes
+import com.example.healthmate.core.util.formatNumber
+import com.example.healthmate.domain.model.DailyTargets
+import com.example.healthmate.domain.model.User
+
+
+// all user actions on profile
+data class ProfileActions(
+    val onTargetClick: (MetricType) -> Unit = {},
+    val onTargetInputChange: (String) -> Unit = {},
+    val onTargetConfirm: () -> Unit = {},
+    val onAppLockToggle: (Boolean) -> Unit = {},
+    val onChangePasscodeClick: () -> Unit = {},
+    val onCurrentPasscodeChange: (String) -> Unit = {},
+    val onNewPasscodeChange: (String) -> Unit = {},
+    val onConfirmPasscodeChange: (String) -> Unit = {},
+    val onPasscodeConfirm: () -> Unit = {},
+    val onResetSampleDataClick: () -> Unit = {},
+    val onResetSampleDataConfirm: () -> Unit = {},
+    val onLogoutClick: () -> Unit = {},
+    val onLogoutConfirm: () -> Unit = {},
+    val onDialogDismiss: () -> Unit = {},
+    val onMessageShown: () -> Unit = {},
+)
 
 @Composable
-fun ProfileScreen (
-    modifier: Modifier = Modifier
+fun ProfileScreen(
+    viewModel: ProfileViewModel,
+    modifier: Modifier = Modifier,
 ) {
-
-    var isAppLockEnabled by remember { mutableStateOf(true) }
-
-    var calories by remember { mutableStateOf("2000 kcal") }
-    var water by remember { mutableStateOf("2.5 L") }
-    var steps by remember { mutableStateOf("8000 steps") }
-    var sleep by remember { mutableStateOf("8 hours") }
-
-    var selectedTarget by remember { mutableStateOf("") }
-    var targetInput by remember { mutableStateOf("") }
-
-    var showPasscodeDialog by remember { mutableStateOf(false) }
-    var showResetDialog by remember { mutableStateOf(false) }
-    var showLogoutDialog by remember { mutableStateOf(false) }
-
-    var currentPasscode by remember { mutableStateOf("") }
-    var newPasscode by remember { mutableStateOf("") }
-    var confirmPasscode by remember { mutableStateOf("") }
-
-
-    fun openTargetDialog(title: String, value: String) {
-        selectedTarget = title
-        targetInput = value.substringBefore(" ")
-    }
-
-    fun saveTarget() {
-        when (selectedTarget) {
-            "Calories" -> calories = "$targetInput kcal"
-            "Water" -> water = "$targetInput L"
-            "Steps" -> steps = "$targetInput steps"
-            "Sleep" -> sleep = "$targetInput hours"
-        }
-        selectedTarget = ""
-    }
-
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     ProfileContent(
+        state = state,
+        actions = ProfileActions(
+            onTargetClick = viewModel::onTargetClick,
+            onTargetInputChange = viewModel::onTargetInputChange,
+            onTargetConfirm = viewModel::onTargetConfirm,
+            onAppLockToggle = viewModel::onAppLockToggle,
+            onChangePasscodeClick = viewModel::onChangePasscodeClick,
+            onCurrentPasscodeChange = viewModel::onCurrentPasscodeChange,
+            onNewPasscodeChange = viewModel::onNewPasscodeChange,
+            onConfirmPasscodeChange = viewModel::onConfirmPasscodeChange,
+            onPasscodeConfirm = viewModel::onPasscodeConfirm,
+            onResetSampleDataClick = viewModel::onResetSampleDataClick,
+            onResetSampleDataConfirm = viewModel::onResetSampleDataConfirm,
+            onLogoutClick = viewModel::onLogoutClick,
+            onLogoutConfirm = viewModel::onLogoutConfirm,
+            onDialogDismiss = viewModel::onDialogDismiss,
+            onMessageShown = viewModel::onMessageShown,
+        ),
         modifier = modifier,
-        isAppLockEnabled = isAppLockEnabled,
-        calories = calories,
-        water = water,
-        steps = steps,
-        sleep = sleep,
-        onAppLockToggle = {
-            isAppLockEnabled = it
-        },
-        onTargetClick = ::openTargetDialog,
-        onChangePasscodeClick = {
-            showPasscodeDialog = true
-        },
-        onResetClick = {
-            showResetDialog = true
-        },
-        onLogoutClick = {
-            showLogoutDialog = true
-        }
     )
-
-    if (selectedTarget.isNotEmpty()) {
-        AlertDialog(
-            onDismissRequest = { selectedTarget = "" },
-            title = {
-                Text("Edit $selectedTarget Target")
-            },
-            text = {
-                OutlinedTextField(
-                    value = targetInput,
-                    onValueChange = { targetInput = it },
-                    label = { Text("Target value") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number
-                    )
-                )
-            },
-            confirmButton = {
-                TextButton(onClick = ::saveTarget) {
-                    Text("Save")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { selectedTarget = "" }) {
-                    Text("Cancel")
-                }
-            }
-        )
-    }
-
-    if (showPasscodeDialog) {
-        AlertDialog(
-            onDismissRequest = { showPasscodeDialog = false },
-            title = {
-                Text("Change Passcode")
-            },
-            text = {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    PasscodeInput(
-                        value = currentPasscode,
-                        onValueChange = { currentPasscode = it },
-                        label = "Current Passcode"
-                    )
-
-                    PasscodeInput(
-                        value = newPasscode,
-                        onValueChange = { newPasscode = it },
-                        label = "New Passcode"
-                    )
-
-                    PasscodeInput(
-                        value = confirmPasscode,
-                        onValueChange = { confirmPasscode = it },
-                        label = "Confirm Passcode"
-                    )
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    showPasscodeDialog = false
-                    currentPasscode = ""
-                    newPasscode = ""
-                    confirmPasscode = ""
-                }) {
-                    Text("Confirm")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    showPasscodeDialog = false
-                }) {
-                    Text("Cancel")
-                }
-            }
-        )
-    }
-
-    if (showResetDialog) {
-        ConfirmationDialog(
-            title = "Reset Sample Data",
-            message = "Are you sure you want to reset the sample data?",
-            confirmLabel = "Reset",
-            onConfirm = {
-                showResetDialog = false
-            },
-            onDismiss = {
-                showResetDialog = false
-            }
-        )
-    }
-
-    if (showLogoutDialog) {
-        ConfirmationDialog(
-            title = "Log Out",
-            message = "Are you sure you want to log out of your account?",
-            confirmLabel = "Log Out",
-            onConfirm = {
-                showLogoutDialog = false
-            },
-            onDismiss = {
-                showLogoutDialog = false
-            }
-        )
-    }
 }
 
 @Composable
-private fun ProfileContent(
-    isAppLockEnabled: Boolean,
-    calories: String,
-    water: String,
-    steps: String,
-    sleep: String,
-    onAppLockToggle: (Boolean) -> Unit,
-    onTargetClick: (String, String) -> Unit,
-    onChangePasscodeClick: () -> Unit,
-    onResetClick: () -> Unit,
-    onLogoutClick: () -> Unit,
-    modifier: Modifier = Modifier
+fun ProfileContent(
+    state: ProfileUiState,
+    actions: ProfileActions,
+    modifier: Modifier = Modifier,
 ) {
-    Column(
+    val snackbarHostState = remember { SnackbarHostState() }
+    val messageText = state.message?.let { stringResource(it.textRes) }
+    LaunchedEffect(state.message) {
+        if (messageText != null) {
+            snackbarHostState.showSnackbar(messageText)
+            actions.onMessageShown()
+        }
+    }
+
+    Box(
         modifier = modifier
             .fillMaxSize()
             .statusBarsPadding()
-            .verticalScroll(rememberScrollState())
-            .padding(bottom = 24.dp)
     ) {
-        Text(
-            text = "Profile",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(
-                start = 20.dp,
-                top = 16.dp,
-                bottom = 16.dp
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(bottom = 24.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.profile_title),
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.padding(start = 20.dp, top = 8.dp, end = 20.dp, bottom = 16.dp),
             )
-        )
 
-        AccountHeader()
+            AccountHeader(state.user)
 
-        SectionHeader(
-            title = "Daily Targets",
-            caption = "Manage your daily health goals"
-        )
+            SectionHeader(R.string.profile_targets, caption = R.string.profile_targets_caption)
+            MetricType.entries.forEach { metric ->
+                TargetRow(
+                    metric = metric,
+                    targets = state.targets,
+                    onClick = { actions.onTargetClick(metric) })
+            }
 
-        TargetRow("Calories", calories) {
-            onTargetClick("Calories", calories)
-        }
+            HorizontalDivider(Modifier.padding(vertical = 8.dp))
 
-        TargetRow("Water", water) {
-            onTargetClick("Water", water)
-        }
+            SectionHeader(R.string.profile_security)
+            ListItem(
+                headlineContent = { Text(stringResource(R.string.profile_app_lock)) },
+                supportingContent = { Text(stringResource(R.string.profile_app_lock_summary)) },
+                leadingContent = { Icon(Icons.Filled.Lock, contentDescription = null) },
+                trailingContent = {
+                    Switch(
+                        checked = state.isAppLockEnabled,
+                        onCheckedChange = actions.onAppLockToggle
+                    )
+                },
+            )
+            ListItem(
+                headlineContent = { Text(stringResource(R.string.profile_change_passcode)) },
+                leadingContent = { Icon(Icons.Filled.LockReset, contentDescription = null) },
+                modifier = if (state.isAppLockEnabled) {
+                    Modifier.clickable(onClick = actions.onChangePasscodeClick)
+                } else {
+                    Modifier
+                },
+                colors = androidx.compose.material3.ListItemDefaults.colors(
+                    headlineColor = if (state.isAppLockEnabled) {
+                        MaterialTheme.colorScheme.onSurface
+                    } else {
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                    },
+                ),
+            )
 
-        TargetRow("Steps", steps) {
-            onTargetClick("Steps", steps)
-        }
+            HorizontalDivider(Modifier.padding(vertical = 8.dp))
 
-        TargetRow("Sleep", sleep) {
-            onTargetClick("Sleep", sleep)
-        }
+            SectionHeader(R.string.profile_database)
+            ListItem(
+                headlineContent = { Text(stringResource(R.string.profile_reset_sample)) },
+                supportingContent = { Text(stringResource(R.string.profile_reset_sample_summary)) },
+                leadingContent = { Icon(Icons.Filled.RestartAlt, contentDescription = null) },
+                modifier = Modifier.clickable(onClick = actions.onResetSampleDataClick),
+            )
 
-        HorizontalDivider(
-            modifier = Modifier.padding(vertical = 8.dp)
-        )
-
-        SectionHeader("Security")
-
-        ListItem(
-            headlineContent = {
-                Text("App Lock")
-            },
-            supportingContent = {
-                Text("Require a passcode to access the app")
-            },
-            leadingContent = {
+            OutlinedButton(
+                onClick = actions.onLogoutClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 24.dp),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+            ) {
                 Icon(
-                    Icons.Default.Lock,
-                    contentDescription = null
+                    Icons.AutoMirrored.Filled.Logout,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
                 )
-            },
-            trailingContent = {
-                Switch(
-                    checked = isAppLockEnabled,
-                    onCheckedChange = onAppLockToggle
+                Text(
+                    stringResource(R.string.profile_logout),
+                    modifier = Modifier.padding(start = 8.dp)
                 )
             }
-        )
-
-        ListItem(
-            headlineContent = {
-                Text("Change Passcode")
-            },
-            leadingContent = {
-                Icon(
-                    Icons.Default.LockReset,
-                    contentDescription = null
-                )
-            },
-            modifier = Modifier
-                .clickable(
-                    enabled = isAppLockEnabled,
-                    onClick = onChangePasscodeClick
-                ),
-            colors = ListItemDefaults.colors(
-                headlineColor = if (isAppLockEnabled) {
-                    MaterialTheme.colorScheme.onSurface
-                } else {
-                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-                }
-            )
-        )
-
-        HorizontalDivider(
-            modifier = Modifier.padding(vertical = 8.dp)
-        )
-
-        SectionHeader("Database")
-
-        ListItem(
-            headlineContent = {
-                Text("Reset Sample Data")
-            },
-            supportingContent = {
-                Text("Restore the application sample data")
-            },
-            leadingContent = {
-                Icon(
-                    Icons.Default.RestartAlt,
-                    contentDescription = null
-                )
-            },
-            modifier = Modifier.clickable(
-                onClick = onResetClick
-            )
-        )
-
-        OutlinedButton(
-            onClick = onLogoutClick,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 24.dp),
-            colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = MaterialTheme.colorScheme.error
-            )
-        ) {
-            Icon(
-                Icons.AutoMirrored.Filled.Logout,
-                contentDescription = null,
-                modifier = Modifier.size(18.dp)
-            )
-
-            Text(
-                "Log Out",
-                modifier = Modifier.padding(start = 8.dp)
-            )
         }
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(16.dp),
+        )
     }
+
+    ProfileDialogs(dialog = state.dialog, actions = actions)
 }
 
+@get:StringRes
+private val ProfileMessage.textRes: Int
+    get() = when (this) {
+        ProfileMessage.TARGETS_SAVED -> R.string.message_targets_saved
+        ProfileMessage.SAMPLE_DATA_RESET -> R.string.message_sample_reset
+        ProfileMessage.APP_LOCK_ENABLED -> R.string.message_lock_enabled
+        ProfileMessage.APP_LOCK_DISABLED -> R.string.message_lock_disabled
+        ProfileMessage.PASSCODE_CHANGED -> R.string.message_passcode_changed
+    }
+
 @Composable
-private fun AccountHeader() {
+private fun AccountHeader(user: User?) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+        verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Box(
             modifier = Modifier
                 .size(80.dp)
                 .clip(CircleShape)
                 .background(MaterialTheme.colorScheme.primaryContainer),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             Text(
-                text = "K",
+                text = user?.initial.orEmpty(),
                 style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
             )
         }
-
         Text(
-            text = "Kavinda",
+            text = user?.name.orEmpty(),
             style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(top = 8.dp)
+            modifier = Modifier.padding(top = 8.dp),
         )
-
         Text(
-            text = "kavinda@example.com",
+            text = user?.email.orEmpty(),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }
 
 @Composable
-private fun SectionHeader(
-    title: String,
-    caption: String? = null
-) {
-    Column(
-        modifier = Modifier.padding(
-            horizontal = 20.dp,
-            vertical = 8.dp
-        )
-    ) {
+private fun SectionHeader(@StringRes title: Int, @StringRes caption: Int? = null) {
+    Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
         Text(
-            text = title,
+            text = stringResource(title),
             style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
         )
-
         if (caption != null) {
             Text(
-                text = caption,
+                text = stringResource(caption),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }
 }
 
 @Composable
-private fun TargetRow(
-    title: String,
-    value: String,
-    onClick: () -> Unit
-) {
+private fun TargetRow(metric: MetricType, targets: DailyTargets, onClick: () -> Unit) {
     ListItem(
-        headlineContent = {
-            Text(title)
+        headlineContent = { Text(stringResource(metric.labelRes)) },
+        leadingContent = {
+            Icon(
+                metric.icon,
+                contentDescription = null,
+                tint = metric.accentColor
+            )
         },
         trailingContent = {
             Text(
-                text = value,
-                style = MaterialTheme.typography.bodyLarge
+                text = stringResource(
+                    metric.valueFormatRes,
+                    formatNumber(targets.targetOf(metric))
+                ),
+                style = MaterialTheme.typography.bodyLarge,
             )
         },
-        modifier = Modifier.clickable(onClick = onClick)
+        modifier = Modifier.clickable(onClick = onClick),
+    )
+}
+
+//dialogs
+
+@Composable
+private fun ProfileDialogs(dialog: ProfileDialog?, actions: ProfileActions) {
+    when (dialog) {
+        null -> Unit
+        is ProfileDialog.EditTarget -> TargetDialog(dialog, actions)
+        is ProfileDialog.Passcode -> PasscodeDialog(dialog, actions)
+        ProfileDialog.ConfirmReset -> ConfirmDialog(
+            title = R.string.reset_title,
+            message = R.string.reset_message,
+            confirmLabel = R.string.action_reset,
+            onConfirm = actions.onResetSampleDataConfirm,
+            onDismiss = actions.onDialogDismiss,
+        )
+
+        ProfileDialog.ConfirmLogout -> ConfirmDialog(
+            title = R.string.logout_title,
+            message = R.string.logout_message,
+            confirmLabel = R.string.profile_logout,
+            onConfirm = actions.onLogoutConfirm,
+            onDismiss = actions.onDialogDismiss,
+        )
+    }
+}
+
+@Composable
+private fun TargetDialog(
+    dialog: ProfileDialog.EditTarget,
+    actions: ProfileActions
+) {
+    AlertDialog(
+        onDismissRequest = actions.onDialogDismiss,
+        title = {
+            Text(
+                stringResource(
+                    R.string.profile_edit_target_title,
+                    stringResource(dialog.metric.labelRes)
+                )
+            )
+        },
+        text = {
+            OutlinedTextField(
+                value = dialog.input,
+                onValueChange = actions.onTargetInputChange,
+                singleLine = true,
+                isError = dialog.error != null,
+                supportingText = dialog.error?.let { { Text(it.message(dialog.metric)) } },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = actions.onTargetConfirm) { Text(stringResource(R.string.action_save)) }
+        },
+        dismissButton = {
+            TextButton(onClick = actions.onDialogDismiss) { Text(stringResource(R.string.action_cancel)) }
+        },
     )
 }
 
 @Composable
-private fun PasscodeInput(
+private fun PasscodeDialog(
+    dialog: ProfileDialog.Passcode,
+    actions: ProfileActions
+) {
+    val titleRes = when (dialog.mode) {
+        PasscodeMode.ENABLE -> R.string.passcode_enable_title
+        PasscodeMode.CHANGE -> R.string.passcode_change_title
+        PasscodeMode.DISABLE -> R.string.passcode_disable_title
+    }
+    val errorRes = when (dialog.error) {
+        PasscodeError.INVALID_FORMAT -> R.string.passcode_error_format
+        PasscodeError.MISMATCH -> R.string.passcode_error_mismatch
+        PasscodeError.WRONG_CURRENT -> R.string.passcode_error_wrong
+        null -> null
+    }
+    val needsCurrent = dialog.mode != PasscodeMode.ENABLE
+    val needsNew = dialog.mode != PasscodeMode.DISABLE
+
+    AlertDialog(
+        onDismissRequest = actions.onDialogDismiss,
+        title = { Text(stringResource(titleRes)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (needsCurrent) {
+                    PasscodeField(
+                        value = dialog.current,
+                        label = R.string.passcode_current,
+                        onValueChange = actions.onCurrentPasscodeChange,
+                        isError = dialog.error == PasscodeError.WRONG_CURRENT,
+                    )
+                }
+                if (needsNew) {
+                    PasscodeField(
+                        value = dialog.new,
+                        label = R.string.passcode_new,
+                        onValueChange = actions.onNewPasscodeChange,
+                        isError = dialog.error == PasscodeError.INVALID_FORMAT,
+                    )
+                    PasscodeField(
+                        value = dialog.confirm,
+                        label = R.string.passcode_confirm,
+                        onValueChange = actions.onConfirmPasscodeChange,
+                        isError = dialog.error == PasscodeError.MISMATCH,
+                    )
+                    Text(
+                        text = stringResource(R.string.passcode_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                if (errorRes != null) {
+                    Text(
+                        text = stringResource(errorRes),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = actions.onPasscodeConfirm) { Text(stringResource(R.string.action_confirm)) }
+        },
+        dismissButton = {
+            TextButton(onClick = actions.onDialogDismiss) { Text(stringResource(R.string.action_cancel)) }
+        },
+    )
+}
+
+@Composable
+private fun PasscodeField(
     value: String,
+    @StringRes label: Int,
     onValueChange: (String) -> Unit,
-    label: String
+    isError: Boolean,
 ) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        label = { Text(label) },
+        label = { Text(stringResource(label)) },
         singleLine = true,
+        isError = isError,
         visualTransformation = PasswordVisualTransformation(),
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.NumberPassword
-        ),
-        modifier = Modifier.fillMaxWidth()
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
     )
 }
 
 @Composable
-private fun ConfirmationDialog(
-    title: String,
-    message: String,
-    confirmLabel: String,
+private fun ConfirmDialog(
+    @StringRes title: Int,
+    @StringRes message: Int,
+    @StringRes confirmLabel: Int,
     onConfirm: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = {
-            Text(title)
-        },
-        text = {
-            Text(message)
-        },
+        title = { Text(stringResource(title)) },
+        text = { Text(stringResource(message)) },
         confirmButton = {
             TextButton(onClick = onConfirm) {
-                Text(
-                    confirmLabel,
-                    color = MaterialTheme.colorScheme.error
-                )
+                Text(stringResource(confirmLabel), color = MaterialTheme.colorScheme.error)
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+        },
     )
 }
 
 
-
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-private fun ProfileScreenPreview() {
-    MaterialTheme {
-        ProfileScreen()
-    }
-}
+//@Preview(showBackground = true, showSystemUi = true)
+//@Composable
+//private fun ProfileScreenPreview() {
+//    MaterialTheme {
+//        ProfileScreen()
+//    }
+//}
